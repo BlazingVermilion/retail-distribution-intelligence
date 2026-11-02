@@ -1,71 +1,55 @@
 # Retail Distribution Intelligence
 
-A portfolio project for reliable retail distribution analytics and evidence-backed automated reporting, using public Iowa Liquor Sales data.
+In January 2026 the Iowa source reported $28.56 million in distribution sales. Every record could be checked, yet the sum of absolute differences between reported and calculated amounts was **$972,656**. A dashboard that only shows totals hides that distinction. This project keeps the original amounts, flags months that need review, and carries those caveats into a monthly brief.
 
-**Status: initial scaffold and local CSV inspection utility.** Snowflake ingestion, dbt transformations, Airflow orchestration, Power BI reports, and AI reporting are planned, not implemented. No cloud deployment or business-impact claim is made.
+![Power BI data quality dashboard: January requires review](docs/images/data-quality.png)
 
-## Business problem
+The warehouse contains **17,337,629 deduplicated records** of Iowa distribution activity. These are purchases by licensed retailers, not consumer checkout sales. The published history spans **81 months, January 2020–September 2026**. The Snowflake monthly mirror stores one aggregate row per month per snapshot.
 
-An analyst needs to understand changes in purchasing activity across stores and products without mistaking incomplete, duplicated, or lower-precision data for business performance. The intended system preserves source snapshots, validates reporting eligibility, and generates reviewable explanations supported by query results.
+## Try the fixture in a fresh checkout
 
-The source describes purchases by licensed retail establishments. It does not represent individual consumer checkout transactions or inventory levels.
+From the repository root with Python 3.11 or 3.12, run:
 
-## Available now
-
-- A standard-library Python CLI that inspects explicit CSV inputs, validates their 23-column header and primitive types, preserves leading-zero identifiers, and produces a content-based input manifest.
-- Synthetic fixtures and unit tests for input validation and manifest identity.
-- Business requirements, data contract, metric definitions, target architecture, implementation roadmap, and recorded source-data findings.
-- A GitHub Actions CI workflow for the inspection utility.
-
-The manifest is an input inventory, not a warehouse load or publication approval. A successful inspection does not establish source completeness or business correctness.
-
-## Quick start
-
-Requires Python 3.11 or later. No Snowflake account, API key, or third-party runtime package is needed for the fixture demo.
-
-```bash
+```sh
 python scripts/inspect_snapshot.py --year 2026 --files data/fixtures/transactions.csv --output artifacts/demo-manifest.json
 python -m unittest discover -s tests -v
 ```
 
-See [Getting started](docs/getting_started.md) for Windows and real-data instructions.
+This path needs no warehouse, credentials, Ollama model or raw downloads. It inspects a synthetic CSV; the full warehouse and dashboard evidence below comes from a separate local installation.
 
-## Target stack
+## From source files to a published month
 
-| Component | Intended responsibility | Status |
-|---|---|---|
-| Python | Input inspection and snapshot ingestion | Inspection only |
-| Snowflake | Raw storage, analytics and publication versions | Planned |
-| dbt Core | Transformations, lineage and data tests | Planned |
-| Airflow | Data workflow scheduling and recovery | Planned |
-| Power BI | Business analysis and data reliability views | Planned |
-| LangGraph + LLM | Evidence-backed report workflow with human review | Planned |
-| PostgreSQL | Application state/checkpoints if required | Planned |
+```mermaid
+flowchart TD
+  A["Year-partitioned Iowa CSVs"] --> B["Prepare: audit and exact deduplication"]
+  B --> C["Load PostgreSQL"]
+  C --> D["dbt build and data tests"]
+  D --> E["Publish validated snapshot"]
+  E --> F["Power BI monthly views"]
+  E --> G["Statistical outlook and checked Qwen brief"]
+  E --> H["Optional Snowflake sync and readback"]
+```
 
-## Documentation
+Airflow runs on demand. Report and cloud sync depend on the publication from their own run. Power BI refreshes separately. The [six-task run](docs/images/airflow-run.png) succeeded in 7m 17s on an unchanged input; that duration is not a benchmark for a fresh 17-million-row load.
 
-- [Business requirements](docs/business_requirements.md)
-- [Data sources and attribution](docs/data_sources.md)
-- [Discovery findings](docs/data_discovery.md)
-- [Data contract](docs/data_contract.md)
-- [Data dictionary](docs/data_dictionary.md)
-- [Metric definitions](docs/metric_definitions.md)
-- [Target architecture](docs/architecture.md)
-- [Warehouse model](docs/warehouse_model.md)
-- [Quality and publication policy](docs/quality_policy.md)
-- [Evaluation plan](docs/evaluation_plan.md)
-- [Implementation roadmap](docs/roadmap.md)
-- [Demo plan](docs/demo_plan.md)
-- [Architecture decisions](docs/decisions/README.md)
+## Forecast and reporting results
 
-## Dataset boundary
+A rolling one-month-ahead replay on **January–September 2026** uses only months preceding each target. Both methods predict statewide net bottles. MAE is mean absolute error in bottles; WAPE divides total absolute error by total absolute actual bottles.
 
-Raw downloads are not bundled. The initial 2025 working set consists of parts 1–4; the supplied part 5 duplicates records already present in parts 3–4 and must not be appended. The 2026 working set consists of four CSV members in the supplied ZIP. These are working exports, not certified reconciliations to the originating transaction system.
+| Method | Scored months | MAE (bottles) | WAPE |
+|---|---:|---:|---:|
+| Seasonal naive (same month last year) | 9 | 54,167.67 | 2.2133% |
+| Damped additive Holt-Winters | 9 | 65,937.69 | 2.6942% |
 
-## Limitations
+Seasonal naive remains the primary plan: Holt-Winters did not improve on it in this window. These are reconstructions using one data vintage, not predictions recorded before each sale. Install NumPy and SciPy (`python -m pip install numpy==2.2.6 scipy==1.15.3`) and run `python scripts/backtest_monthly.py` to replay the [published monthly inputs](docs/evidence/monthly-evidence.json).
 
-Invoice identifier semantics change across the supplied data; cross-period invoice counts are not yet approved. Price fields are missing for early 2025, and numeric precision differs across periods. Forecasting, net-profit analysis, inventory optimization, and causal explanations are out of the initial implementation scope.
+Qwen 2.5 3B runs locally through Ollama. Policy controls the lead, protected fields come from source facts, and validators check numbers, direction and required caveats before rendering. In the [three-month evaluation](docs/evidence/evaluation.json), both the deterministic baseline and Ollama passed **3/3**. This is a small contract test, not a general accuracy claim. Read the [September brief](docs/evidence/brief.md).
 
-## License
+## Explore or reproduce
 
-Repository code and original documentation: [MIT](LICENSE). Dataset terms and attribution are separate: [Data sources](docs/data_sources.md). Synthetic fixtures are explicitly labeled and are not empirical findings.
+- [Two-minute demo, screenshots and run evidence](docs/acceptance/RUN_EVIDENCE.md)
+- [Data source and attribution](docs/data_sources.md) · [data contract](docs/data_contract.md)
+- Full installation: [dbt](README_DBT.md), [publication](README_PUBLICATION.md), [snapshot ingestion](README_SNAPSHOTS.md), [Airflow setup](README_AIRFLOW.md), [AI reporting](docs/AIRFLOW_REPORTING.md), [optional Snowflake branch](docs/AIRFLOW_SNOWFLAKE.md)
+- [CI and release procedure](docs/RELEASE.md) · [deferred failure drills](docs/STRESS_FAIL_TESTS.md)
+
+Data completeness is unverified. Recalculated sales are diagnostics, not corrections. Missing coverage is not a zero mismatch rate. Store-level ML/DL experiments are archived comparisons, not components of the published forecast.

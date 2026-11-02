@@ -1,5 +1,7 @@
 # Decision: classical statewide forecasting and evidence-based reporting
 
+> Historical design record. The [implemented architecture](architecture.md), [run evidence](acceptance/RUN_EVIDENCE.md) and [forecast evaluation](../README.md#forecast-and-reporting-results) supersede older implementation-status statements below.
+
 The planning target is monthly and calendar-year statewide wholesale net bottles. Seasonal naive is the primary plan; additive damped Holt-Winters is the comparison. ML and DL experiments remain historical research, outside the reporting path. Forecasts are deterministic given a snapshot, code and numerical environment. Neither method is promoted automatically.
 
 Run from the repository root using the forecasting Python environment (NumPy and SciPy installed) and the existing Docker Compose PostgreSQL service:

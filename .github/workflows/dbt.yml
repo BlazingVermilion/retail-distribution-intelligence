@@ -1,5 +1,9 @@
 name: dbt PostgreSQL integration
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
 permissions:
   contents: read
 jobs:

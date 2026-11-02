@@ -1,5 +1,7 @@
 # Retail Distribution Intelligence — Architecture Baseline
 
+> Historical design record. The [implemented architecture](architecture.md), [run evidence](acceptance/RUN_EVIDENCE.md) and [forecast evaluation](../README.md#forecast-and-reporting-results) supersede older implementation-status statements below.
+
 **Version:** 1.4  
 **Decision date:** 2026-10-22  
 **Owner:** Huy Vu  

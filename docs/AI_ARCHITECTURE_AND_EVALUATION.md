@@ -1,5 +1,7 @@
 # Retail Distribution Intelligence: AI architecture and evaluation contract
 
+> Historical design record. The [implemented architecture](architecture.md), [run evidence](acceptance/RUN_EVIDENCE.md) and [forecast evaluation](../README.md#forecast-and-reporting-results) supersede older implementation-status statements below.
+
 Decision: add an independently evaluated forecasting component to monthly reporting. Design v1, 2026-10-31. This is a new scope decision; the existing 13A brief is a reporting prototype. No trained model result or prospective forecast is claimed.
 
 ## Business decision and source contract
