@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: iowa
+    schema: staging
+    description: Exact-deduplicated export loaded by the existing Python loader.
+    tables:
+      - name: sales_exact
+        identifier: iowa_sales_exact
+        description: One retained 23-field source record; invoice_id is not unique.
+  - name: legacy
+    schema: marts
+    tables:
+      - name: fact_sales
+      - name: dim_store
+      - name: dim_product
+      - name: dim_date
+      - name: sales_monthly
+      - name: v_sales_monthly_kpis
+      - name: bi_sales_monthly

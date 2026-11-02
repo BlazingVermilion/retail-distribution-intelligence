@@ -1,0 +1,63 @@
+version: 2
+models:
+  - name: stg_iowa_sales
+    description: "Normalized strings and safe types; missing and invalid remain distinct."
+    columns:
+      - name: _audit_row_id
+        tests: [unique, not_null]
+  - name: int_sales_reconciled
+    description: "Reported values preserved; calculated values are diagnostics."
+    columns:
+      - name: _audit_row_id
+        tests: [unique, not_null]
+  - name: fact_sales
+    description: "Snapshot fact. Audit ID is unique only within one export."
+    columns:
+      - name: _audit_row_id
+        tests: [unique, not_null]
+      - name: ordered_on
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: calendar_date
+      - name: store_no
+        tests:
+          - relationships:
+              to: ref('dim_store')
+              field: store_no
+      - name: item_no
+        tests:
+          - relationships:
+              to: ref('dim_product')
+              field: item_no
+  - name: dim_store
+    description: "Latest observed store record; not SCD2."
+    columns:
+      - name: store_no
+        tests: [unique, not_null]
+  - name: dim_product
+    description: "Latest observed product record; not SCD2."
+    columns:
+      - name: item_no
+        tests: [unique, not_null]
+  - name: dim_date
+    description: "Continuous calendar from observed minimum to maximum date."
+    columns:
+      - name: calendar_date
+        tests: [unique, not_null]
+  - name: sales_monthly
+    description: "Observed months only. Distinct counts and ratios are not additive."
+    columns:
+      - name: month_start
+        tests: [unique, not_null]
+  - name: v_sales_monthly_kpis
+    description: "Exact prior-calendar-month YoY; completeness remains UNVERIFIED."
+    columns:
+      - name: month_start
+        tests: [unique, not_null]
+  - name: bi_sales_monthly
+    description: Development BI contract preview. Validation timestamp is NULL until controlled publication exists.
+    columns:
+      - name: month_start
+        tests: [unique, not_null]

@@ -1,0 +1,13 @@
+retail_distribution:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DBT_HOST', '127.0.0.1') }}"
+      port: "{{ env_var('DBT_PORT', '5433') | int }}"
+      user: retail_dbt
+      password: "{{ env_var('DBT_ENV_SECRET_PASSWORD') }}"
+      dbname: "{{ env_var('DBT_DATABASE', 'retail_analytics') }}"
+      schema: dbt_dev
+      threads: 2
+      connect_timeout: 15

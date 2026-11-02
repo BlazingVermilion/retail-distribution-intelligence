@@ -1,0 +1,78 @@
+{
+  "origin": "2026-09-01",
+  "next_month": {
+    "target": "2026-10-01",
+    "seasonal_naive": 2778821.0,
+    "holt_winters": 2698685.4124262566
+  },
+  "rolling_path": [
+    {
+      "target": "2026-10-01",
+      "seasonal_naive": 2778821.0,
+      "holt_winters": 2698685.4124262566
+    },
+    {
+      "target": "2026-11-01",
+      "seasonal_naive": 2427078.0,
+      "holt_winters": 2451302.071489088
+    },
+    {
+      "target": "2026-12-01",
+      "seasonal_naive": 2849076.0,
+      "holt_winters": 2748620.6144004115
+    },
+    {
+      "target": "2027-01-01",
+      "seasonal_naive": 2163052.0,
+      "holt_winters": 2130214.010811271
+    },
+    {
+      "target": "2027-02-01",
+      "seasonal_naive": 2192141.0,
+      "holt_winters": 2119189.465633323
+    },
+    {
+      "target": "2027-03-01",
+      "seasonal_naive": 2414717.0,
+      "holt_winters": 2332046.6101421774
+    },
+    {
+      "target": "2027-04-01",
+      "seasonal_naive": 2483580.0,
+      "holt_winters": 2425469.276832481
+    },
+    {
+      "target": "2027-05-01",
+      "seasonal_naive": 2576531.0,
+      "holt_winters": 2501970.618306221
+    },
+    {
+      "target": "2027-06-01",
+      "seasonal_naive": 2582939.0,
+      "holt_winters": 2562542.1681344397
+    },
+    {
+      "target": "2027-07-01",
+      "seasonal_naive": 2593396.0,
+      "holt_winters": 2450372.080357334
+    },
+    {
+      "target": "2027-08-01",
+      "seasonal_naive": 2461391.0,
+      "holt_winters": 2461666.379162193
+    },
+    {
+      "target": "2027-09-01",
+      "seasonal_naive": 2558986.0,
+      "holt_winters": 2428964.728428342
+    }
+  ],
+  "annual_year": "2026",
+  "annual_cutoff": "2025-12-01",
+  "annual_totals": {
+    "seasonal_naive": 30440723.0,
+    "holt_winters": 30753129.247918554
+  },
+  "reconstructed": true,
+  "unit": "reported net bottles"
+}

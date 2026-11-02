@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "description": "Optional embedded PostgreSQL SQL smoke checks; production uses PostgreSQL 17 Docker",
+  "scripts": {"test": "node sql_smoke.mjs"},
+  "devDependencies": {"@electric-sql/pglite": "0.5.11"}
+}

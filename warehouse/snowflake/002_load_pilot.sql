@@ -1,0 +1,11 @@
+-- Upload the unchanged lowercase CSV to the root of RDI_STAGE before running this.
+USE ROLE SYSADMIN;
+USE WAREHOUSE RDI_PILOT_WH;
+USE SCHEMA RDI_PILOT_DB.PILOT;
+LIST @RDI_STAGE;
+COPY INTO IOWA_SEP_2026 FROM @RDI_STAGE
+  FILES = ('iowa_2026_09.csv')
+  FILE_FORMAT = (TYPE = CSV SKIP_HEADER = 1 FIELD_OPTIONALLY_ENCLOSED_BY = '"'
+    EMPTY_FIELD_AS_NULL = TRUE NULL_IF = ('__RDI_NULL_SENTINEL__') ESCAPE_UNENCLOSED_FIELD = NONE DATE_FORMAT = 'YYYY-MM-DD')
+  ON_ERROR = ABORT_STATEMENT;
+-- Keep FORCE off: this is a one-file pilot, not a replacement loader for revisions.

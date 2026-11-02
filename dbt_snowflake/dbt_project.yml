@@ -1,0 +1,6 @@
+name: iowa_cloud_pilot
+version: '1.0'
+config-version: 2
+profile: iowa_cloud_pilot
+model-paths: ["models"]
+test-paths: ["tests"]

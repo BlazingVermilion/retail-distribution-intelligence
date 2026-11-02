@@ -1,0 +1,50 @@
+// Create each measure separately with Modeling > New measure.
+// These definitions assume the imported table is named Monthly Sales.
+// Format ratio measures as Percentage. DIVIDE returns BLANK for zero coverage.
+
+Reported Sales USD =
+SUM('Monthly Sales'[reported_sales_dollars])
+
+Reported Bottles =
+SUM('Monthly Sales'[sales_bottles])
+
+Reported Liters =
+SUM('Monthly Sales'[reported_sales_liters])
+
+Source Records =
+SUM('Monthly Sales'[source_records])
+
+Money Check Coverage =
+DIVIDE(
+    SUM('Monthly Sales'[money_evaluable_records]),
+    SUM('Monthly Sales'[source_records])
+)
+
+Money Mismatch Rate =
+DIVIDE(
+    SUM('Monthly Sales'[money_mismatch_records]),
+    SUM('Monthly Sales'[money_evaluable_records])
+)
+
+Money Absolute Difference Rate =
+DIVIDE(
+    SUM('Monthly Sales'[money_absolute_difference]),
+    SUM('Monthly Sales'[reported_sales_dollars_absolute_evaluable])
+)
+
+// Distinct store counts cannot be added across months.
+// Multi-month selections intentionally return BLANK.
+Active Stores - Single Month =
+IF(
+    HASONEVALUE('Monthly Sales'[month_start]),
+    SELECTEDVALUE('Monthly Sales'[active_stores])
+)
+
+// The SQL percentage uses 0-100; divide by 100 before Percentage formatting.
+// This measure deliberately does not claim to calculate annual/YTD growth.
+Reported Sales YoY - Single Month =
+IF(
+    HASONEVALUE('Monthly Sales'[month_start]),
+    DIVIDE(SELECTEDVALUE('Monthly Sales'[reported_sales_yoy_pct]), 100)
+)
+

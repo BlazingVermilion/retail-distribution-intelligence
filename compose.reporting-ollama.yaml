@@ -1,0 +1,10 @@
+services:
+  reporting-ollama:
+    image: ollama/ollama
+    volumes:
+      - reporting_models:/root/.ollama
+  airflow-scheduler:
+    environment:
+      RDI_OLLAMA_URL: http://reporting-ollama:11434
+volumes:
+  reporting_models:

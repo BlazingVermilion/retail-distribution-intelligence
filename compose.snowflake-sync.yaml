@@ -1,0 +1,18 @@
+services:
+  airflow-init:
+    build:
+      dockerfile: airflow/Dockerfile.snowflake
+      args:
+        CONNECTOR_VERSION: ${RDI_SF_CONNECTOR_VERSION:?Set the tested connector version}
+  airflow-scheduler:
+    environment:
+      RDI_SF_SYNC_ENABLED: "1"
+      RDI_SF_ACCOUNT: ${RDI_SF_ACCOUNT:?Set the Snowflake account identifier}
+    secrets:
+      - rdi_key
+      - rdi_pass
+secrets:
+  rdi_key:
+    file: ${RDI_SF_KEY_FILE:?Set the encrypted key path}
+  rdi_pass:
+    file: ${RDI_SF_PASS_FILE:?Set the passphrase file path}

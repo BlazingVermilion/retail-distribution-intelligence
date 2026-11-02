@@ -1,0 +1,8 @@
+# Grounded English reporting
+Install the overlay at the project root. It updates monthly_brief.py and retains the existing statistical outlook. With Docker PostgreSQL and local Ollama running:
+~~~powershell
+.\.venv-forecast\Scripts\python.exe scripts/evaluate_briefs.py --model qwen2.5:3b
+~~~
+Each month is run in deterministic and local LLM modes. Read the printed evaluation.json and each run's claim_sources.json, response.json (LLM only), checks.json and brief.md. Review source snapshot IDs when comparing engines. Policy priority and data-quality caveats are supplied by code; their presence does not demonstrate model skill. Python binds every passage to its source field. The model writes text; checks enforce field structure, numeric tokens, selected semantics and forecast method/value bindings. Unsupported paraphrases may be rejected, and generic keyword checks do not prove factual entailment. Review accepted passages alongside their evidence. A rejected draft or unavailable service is a failure, not a baseline success. No automatic publication, no Airflow schedule change.
+
+Version 3.1: Python renders the quality passage verbatim from published evidence. Ollama receives only the remaining fields and cannot submit a quality field. Quality text and lead ordering are not LLM performance metrics. Signed YoY is accepted as the original source sentence or as a narrowly defined equivalent English increase/decrease sentence. Other wording can still be rejected and should be reviewed. Run tests/test_narrative_regression.py to replay the two field-level failures. Compare new runs separately from v3; report the policy version and scope.

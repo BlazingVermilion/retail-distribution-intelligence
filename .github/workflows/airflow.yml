@@ -1,0 +1,24 @@
+name: Airflow integration checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the same runtime used by the local scheduler
+        run: docker build -t retail-airflow:test -f airflow/Dockerfile .
+      - name: Load the real DAG and check the dependency chain
+        run: |
+          docker run --rm -i -v "$PWD/airflow/dags:/test:ro" --entrypoint python retail-airflow:test - <<'PY'
+          import runpy
+          dag = runpy.run_path("/test/retail_snapshot_pipeline.py")["dag"]
+          assert dag.max_active_runs == 1
+          expected = {"prepare": {"load"}, "load": {"dbt_build"}, "dbt_build": {"publish"}, "publish": {"report"}, "report": set()}
+          assert {t.task_id: t.downstream_task_ids for t in dag.tasks} == expected
+          PY
+      - name: Verify the run handoff and corrected fixture retry
+        run: |
+          docker run --rm -v "$PWD:/project:ro" --entrypoint /opt/airflow/pipeline-venv/bin/python \
+            retail-airflow:test -B -m unittest discover -s /project/tests/airflow -v

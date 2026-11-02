@@ -1,0 +1,39 @@
+name: retail-distribution-local
+
+services:
+  postgres:
+    # Keep the major version explicit to avoid an accidental major upgrade.
+    image: postgres:17-bookworm
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+
+    ports:
+      # Allow connections from this computer only.
+      # Windows applications use localhost:5433 by default.
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+
+    volumes:
+      # Preserve database files when the container is removed.
+      - postgres_data:/var/lib/postgresql/data
+
+      # Make repository SQL files available inside the container.
+      # Read-only mounting prevents the container from editing them.
+      - ./warehouse/postgres:/workspace/sql:ro
+
+    healthcheck:
+      # Check whether PostgreSQL is ready to accept connections.
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

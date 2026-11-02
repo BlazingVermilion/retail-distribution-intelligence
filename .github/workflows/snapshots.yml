@@ -1,0 +1,37 @@
+name: Snapshot refresh integration
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  snapshots:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-bookworm
+        env:
+          POSTGRES_DB: retail_analytics_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: fixture-admin-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d retail_analytics_ci"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:fixture-admin-password@127.0.0.1:5432/retail_analytics_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-snapshots.txt
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - run: python -m unittest discover -s tests/snapshots -v
+      - run: python tests/snapshots/integration.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: snapshot-refresh-evidence
+          path: |
+            artifacts/publication/
+            dbt/target/run_results.json
+            dbt/logs/dbt.log

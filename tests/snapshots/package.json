@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "description": "Optional PostgreSQL SQL smoke harness; not required for normal pipeline use",
+  "scripts": {"test": "node sql_smoke.mjs"},
+  "devDependencies": {"@electric-sql/pglite": "0.5.11"}
+}

@@ -1,0 +1,35 @@
+{
+  "description": "Observed 2025 exports; no raw files bundled. Part 5 excluded after exact multiset comparison.",
+  "inputs": [
+    {
+      "original_filename": "iowa_liquor_sales_2025_1262_rows_part_0001.csv",
+      "bytes": 127437210,
+      "sha256": "54a87348beff6476f2dc963da2115a204e772f66622a3c9d5c06475416c479cb",
+      "selected": true
+    },
+    {
+      "original_filename": "iowa_liquor_sales_2025_1262_rows_part_0002(1).csv",
+      "bytes": 167226499,
+      "sha256": "7fdcd8f1b1c0d54e7cdc25d31e494e02542f4fd0342d887516adfd86c5b8dc9f",
+      "selected": true
+    },
+    {
+      "original_filename": "iowa_liquor_sales_2025_1262_rows_part_0003(1).csv",
+      "bytes": 139534727,
+      "sha256": "630adea1fd0ccfc427bfff7ca4745bd15a82b0a01df75673ea732602df75006d",
+      "selected": true
+    },
+    {
+      "original_filename": "iowa_liquor_sales_2025_1262_rows_part_0004(1).csv",
+      "bytes": 101816160,
+      "sha256": "973a17d4a59334350bade699d850e6ab2be18ee458c63af68e704bc5e1f4d77a",
+      "selected": true
+    },
+    {
+      "original_filename": "iowa_liquor_sales_2025_1262_rows_part_0005.csv",
+      "bytes": 95306978,
+      "sha256": "a47fc76b665e2cbfb7a95078d5c4d33d079bbbc4261aaf350e8e8986971d3fc3",
+      "selected": false
+    }
+  ]
+}

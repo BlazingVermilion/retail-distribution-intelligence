@@ -1,0 +1,15 @@
+name: retail_distribution
+version: '1.0.0'
+config-version: 2
+profile: retail_distribution
+model-paths: [models]
+test-paths: [tests]
+macro-paths: [macros]
+clean-targets: [target, dbt_packages]
+on-run-start:
+  - "{{ initialize_conversions() }}"
+vars:
+  compare_legacy: false
+models:
+  retail_distribution:
+    +persist_docs: {relation: true, columns: true}

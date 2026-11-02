@@ -1,0 +1,15 @@
+iowa_cloud_pilot:
+  target: pilot
+  outputs:
+    pilot:
+      type: snowflake
+      account: "{{ env_var('RDI_SF_ACCOUNT') }}"
+      user: RDI_DBT_PILOT_SVC
+      role: RDI_DBT_PILOT_ROLE
+      warehouse: RDI_PILOT_WH
+      database: RDI_PILOT_DB
+      schema: DBT_PILOT
+      threads: 1
+      private_key_path: "{{ env_var('RDI_SF_KEY') }}"
+      private_key_passphrase: "{{ env_var('DBT_ENV_SECRET_RDI_PASSPHRASE') }}"
+      query_tag: RDI_STEP12B

@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pilot
+    database: RDI_PILOT_DB
+    schema: PILOT
+    tables:
+      - name: iowa_sep_2026
+models:
+  - name: stg_iowa_sales_pilot
+    description: Reported September 2026 distribution measures from the verified PostgreSQL export.
+    columns:
+      - name: audit_id
+        description: Unique within this export, not a permanent cross-export business key.
+        data_tests: [unique, not_null]
+      - name: ordered_on
+        data_tests: [not_null]
+  - name: sales_monthly_pilot
+    description: Monthly reported measures with nine metrics checked against the PostgreSQL export.
+    columns:
+      - name: month_start
+        data_tests: [unique, not_null]

@@ -1,0 +1,10 @@
+# Step 12A — PostgreSQL to Snowflake parity pilot
+
+Merge this overlay into the existing project root. The failure drill is deferred to docs/STRESS_FAIL_TESTS.md. PostgreSQL remains the local reference and Power BI keeps its existing connection.
+
+1. In Windows PowerShell at the root, run: `.\.venv-dbt\Scripts\python.exe scripts/export_snowflake_pilot.py`. PostgreSQL must be running. The script reads the reconciled view and creates a six-column CSV and a comparison query in artifacts/snowflake/2026-09. No Snowflake account is needed for this step. Do not commit the CSV.
+2. Use your own Snowflake account and a SQL worksheet in Snowsight. Run warehouse/snowflake/001_pilot_setup.sql. This assumes SYSADMIN rights in a personal sandbox; in a managed account request provisioning and use an authorized role. Dedicated project/service roles are a later step. Inspect existing objects if any names already exist.
+3. In Snowsight open the internal stage RDI_PILOT_DB.PILOT.RDI_STAGE. Upload the generated iowa_2026_09.csv unchanged at the stage root. In a worksheet run 002_load_pilot.sql. Check LIST and the COPY result; if the stage stored a compressed name, use that exact filename in FILES. A failed COPY must be investigated before comparison.
+4. In the same worksheet/session run the generated 003_compare.sql. Require PASS for the nine aggregate checks, not just a successful COPY. Save the COPY and comparison query IDs, status, rows loaded and elapsed time. Suspend RDI_PILOT_WH after use if running. Execution can consume Snowflake credits.
+5. If the file is revised, use an isolated new pilot table and clean stage path; do not force-reload into a non-empty table. No automatic delete, truncate or overwrite is performed.
+6. This pilot tests transport, types, null coverage and aggregate agreement for one month. It does not establish row-level parity, source completeness, or a working Snowflake dbt port. After PASS: port and test models on this slice before scaling or integrating orchestration. AI reporting remains in scope.
