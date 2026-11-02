@@ -1,19 +1,10 @@
-# Step 11: Run the Iowa refresh through Airflow
+# Run Airflow and the monthly brief
 
-The DAG runs on demand. The first four tasks use the existing audit, snapshot loader,
-dbt wrapper, and publication gate. Airflow owns dependencies, retries, task
-logs and run history. Power BI continues to read marts.bi_sales_monthly; a
-failed build cannot expose partially rebuilt models through that view.
+The manual DAG prepares the input, loads PostgreSQL, builds dbt and publishes a snapshot. Reporting and the optional Snowflake mirror then consume that run’s publication receipt.
 
-## 1. Install the overlay on Windows
+## Start the local services
 
-Start in the existing project root, beside compose.yaml and .env. The ZIP has
-no enclosing project folder. Extract it here. It updates the step 10B versions
-of scripts/warehouse_state.py and docs/PROJECT_ARCHITECTURE_BASELINE.md.
-If you edited either locally, merge your changes first. No warehouse migration
-is included. Leave your raw data, Power BI files, and existing named volumes in place.
-
-Prerequisites: the complete step 10B installation, warehouse migrations through
+Prerequisites: a validated source snapshot, warehouse migrations through
 011, all three application-role passwords in .env, and Python 3.12. Keep the
 full set of intended source years under data/raw/YYYY. If you have been using a
 different raw root, set RDI_RAW_DIR in the current PowerShell session to its
@@ -32,11 +23,11 @@ docker compose @af exec postgres psql -U postgres -d retail_analytics -c "SELECT
 
 Setup only appends missing, randomly generated Airflow settings to your local
 .env. Do not commit .env or paste its contents into an issue. If a required
-object or password is missing, finish README_SNAPSHOTS.md before triggering.
+object or password is missing, finish the PostgreSQL guide in this directory before triggering.
 The DAG does not create application accounts. A false build flag means a full
 build is required; the DAG includes that build.
 
-## 2. Start Airflow and check its connections
+### Start Airflow and check its connections
 
 ```powershell
 docker compose @af build airflow-init
@@ -66,7 +57,7 @@ present. In containers the warehouse is postgres:5432; on Windows it remains
 metadata only. Allow disk space for any new audit bundle, PostgreSQL candidate,
 WAL and rebuilt fact table. Reuse the existing artifacts/snapshots directory.
 
-## 3. Trigger one real refresh
+### Trigger one real refresh
 
 Open http://localhost:8088. The local SimpleAuthManager user is **analyst**.
 Read its generated password on your own terminal:
@@ -98,7 +89,7 @@ LocalExecutor runs tasks on the scheduler. Only one run is active; avoid manual
 warehouse updates during a run. No approval flags for source removal or reduced
 row counts are supplied by the DAG.
 
-## 4. Verify publication and replay
+### Verify publication and replay
 
 ```powershell
 docker compose @af exec postgres psql -U postgres -d retail_analytics -P pager=off -c "SELECT run_id, state, snapshot_id, previous_snapshot_id FROM publication.runs ORDER BY started_at DESC LIMIT 4;"
@@ -116,46 +107,14 @@ For your portfolio, keep the two DAG IDs and durations, task grid, input row
 count, both publication results and warning details. A warning about 81 monthly
 quality observations is different from 81 failed dbt tests.
 
-## 5. Demonstrate a failure and recovery without editing real input
-
-Do this only with the scheduler idle. Note the currently published snapshot ID.
-The following commands temporarily mount a separate directory containing one
-malformed CSV. The expected failure is in prepare; load/build/publish must not
-execute. No real source file needs to be edited.
-
-```powershell
-$oldRaw = $env:RDI_RAW_DIR
-$demo = Join-Path $PWD 'artifacts/airflow-drill-input'
-New-Item -ItemType Directory -Force "$demo/2025" | Out-Null
-Set-Content -Encoding ascii "$demo/2025/bad.csv" @('invalid_header','broken')
-$env:RDI_RAW_DIR = $demo
-docker compose @af up -d --no-deps airflow-scheduler
-```
-
-Trigger a **new** DAG run. Inspect the header failure and confirm the same
-current snapshot and queryable BI view using section 4. Once the run finishes,
-restore the real raw mount before retrying:
-
-```powershell
-if ($null -eq $oldRaw) { Remove-Item Env:RDI_RAW_DIR } else { $env:RDI_RAW_DIR = $oldRaw }
-docker compose @af up -d --no-deps airflow-scheduler
-```
-
-Verify the years and file count again. In the failed run, clear **prepare and
-its downstream tasks** for that run only; do not include past/future runs.
-Follow the corrected run to success. This drill proves failure handling before
-ingestion. Use the isolated step 10 publication integration fixture to exercise
-a candidate that fails dbt validation; do not corrupt production marts to
-demonstrate that separate failure mode.
-
-## Operations and troubleshooting
+## Troubleshooting
 
 - If prepare sees no CSVs: verify the host mount and YYYY directories. If it
   reports an existing prepare.lock after a hard stop, confirm no preparer on
   Windows or inside Docker is running before removing a stale lock.
 - If load rejects a reduced row count or missing old input paths: compare the
   inventory with the intended full source. An exceptional source correction
-  requires the separate documented step 10B procedure and a recorded reason.
+  requires the snapshot refresh procedure and a recorded reason.
 - If dbt fails, inspect its first error, not the downstream upstream_failed
   status. A failed run can leave newer staging/models while the previous
   published BI snapshot remains readable. Check publication.runs and the
@@ -168,11 +127,43 @@ demonstrate that separate failure mode.
 - If you open a new PowerShell window, define $af again. Restore any non-default
   raw path/port settings before starting Compose.
 
-## Validation boundary
+## Configure the reporting engine
 
-The DAG imported under Apache Airflow 3.1.7 / Python 3.12. Three offline
-regressions exercised the real CSV preparation path, a corrected retry, a
-run-specific load handoff with a mocked database loader, and rejection of a
-different registered source. This is not evidence of a successful Docker DAG
-run against the full Iowa warehouse. Record that separately on the target host.
-The supplied .github/workflows/airflow.yml builds the runtime and repeats the DAG and fixture checks on GitHub; no remote CI execution is claimed. Snowflake execution and evaluated AI reporting follow the orchestration milestone.
+### Start and check
+~~~powershell
+$af = @('-f','compose.yaml','-f','compose.airflow.yaml')
+docker compose @af config --quiet
+docker compose @af build airflow-init
+docker compose @af up -d airflow-api airflow-dag-processor airflow-scheduler
+docker compose @af exec airflow-scheduler airflow dags list-import-errors
+docker compose @af exec airflow-scheduler airflow tasks list retail_snapshot_pipeline
+docker compose @af exec airflow-scheduler curl -fsS http://host.docker.internal:11434/api/tags
+~~~
+Confirm qwen2.5:3b is listed. If Windows Ollama cannot be reached, start the optional private service (no public port; separate model download):
+~~~powershell
+$af += @('-f','compose.reporting-ollama.yaml')
+docker compose @af up -d reporting-ollama
+docker compose @af exec reporting-ollama ollama pull qwen2.5:3b
+docker compose @af up -d airflow-scheduler
+docker compose @af exec airflow-scheduler curl -fsS http://reporting-ollama:11434/api/tags
+~~~
+Trigger a NEW retail_snapshot_pipeline run in the existing UI. Old runs do not contain publication.json. If reporting fails, inspect logs, fix the cause and clear only report. No fallback or failed draft is indexed. Failure does not roll back the Power BI publication.
+
+### Receipts
+Look for report_state RENDERED, or REUSED on the next identical run. Open the folder in the receipt:
+~~~powershell
+$file = Get-ChildItem artifacts/airflow -Recurse -Filter report.json | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+$r = Get-Content -Raw $file.FullName | ConvertFrom-Json
+$r | Select-Object airflow_run_id,state,snapshot_id,report_state,month,model,report_folder
+Get-Content -Raw (Join-Path $r.report_folder 'brief.md')
+~~~
+Verify the receipt belongs to the intended DAG run. Publication and reporting receipts live under artifacts/airflow/<hash of run ID>/. The index key includes snapshot, month, policy, engine, model tag and reporting-code hashes. Reuse verifies eight output hashes and retains the original report ID; the new DAG run has its own receipt. If replacing the model weights under an unchanged model tag, invalidate the corresponding index entry. Manual reporting evaluation remains separate.
+
+## Evaluate the brief
+
+~~~powershell
+.\.venv-forecast\Scripts\python.exe scripts/evaluate_briefs.py --model qwen2.5:3b
+~~~
+Each month is run in deterministic and local LLM modes. Read the printed evaluation.json and each run's claim_sources.json, response.json (LLM only), checks.json and brief.md. Review source snapshot IDs when comparing engines. Policy priority and data-quality caveats are supplied by code; their presence does not demonstrate model skill. Python binds every passage to its source field. The model writes text; checks enforce field structure, numeric tokens, selected semantics and forecast method/value bindings. Unsupported paraphrases may be rejected, and generic keyword checks do not prove factual entailment. Review accepted passages alongside their evidence. A rejected draft or unavailable service is a failure, not a baseline success. No automatic publication, no Airflow schedule change.
+
+Version 3.1: Python renders the quality passage verbatim from published evidence. Ollama receives only the remaining fields and cannot submit a quality field. Quality text and lead ordering are not LLM performance metrics. Signed YoY is accepted as the original source sentence or as a narrowly defined equivalent English increase/decrease sentence. Other wording can still be rejected and should be reviewed. Run tests/test_narrative_regression.py to replay the two field-level failures. Compare new runs separately from v3; report the policy version and scope.

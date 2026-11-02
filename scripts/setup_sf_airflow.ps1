@@ -1,5 +1,5 @@
 # Dot-source in the current PowerShell session. Keep credentials outside the repository.
-$env:RDI_SF_ACCOUNT = 'BXDVXCA-GS45600'
+if ([string]::IsNullOrWhiteSpace($env:RDI_SF_ACCOUNT)) { throw 'Set RDI_SF_ACCOUNT to your Snowflake account identifier before running setup.' }
 $env:RDI_SF_CONNECTOR_VERSION = & .\.venv-snowflake\Scripts\python.exe -c "from importlib.metadata import version; print(version('snowflake-connector-python'))"
 if ($LASTEXITCODE -ne 0 -or !$env:RDI_SF_CONNECTOR_VERSION) { throw 'Cannot read the pilot connector version.' }
 $env:RDI_SF_KEY_FILE = (Resolve-Path -ErrorAction Stop (Join-Path $HOME '.snowflake/rdi_pilot_key.p8')).Path
