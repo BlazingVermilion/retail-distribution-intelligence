@@ -28,5 +28,5 @@ Ridge flattens the same sequences and solves a penalized linear fit. The TCN sha
 
 Run the cutoff and cold-start regression test with the same interpreter:
 ~~~powershell
-.\.venv-forecast\Scripts\python.exe tests/test_store_tcn.py
+.\.venv-forecast\Scripts\python.exe tests/experiments/test_store_tcn.py
 ~~~

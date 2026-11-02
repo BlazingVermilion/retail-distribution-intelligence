@@ -1,8 +1,8 @@
 # Getting started
 
-## 1. Extract the ZIP
+## 1. Open the checkout
 
-Extract the archive and open the `retail-distribution-intelligence` folder in your editor. Run commands from this folder. Do not run the project from inside the ZIP viewer.
+Clone the repository or extract its source archive. Open the repository root (the directory containing compose.yaml) in your editor.
 
 ## 2. Check Python
 
@@ -39,12 +39,6 @@ Exit code 0: file structure and present primitive values passed the implemented 
 
 This is not a data-quality pass for all KPIs. Read `docs/quality_policy.md` before presenting any business result.
 
-## 6. Create a local Git repository when ready
+## 6. Continue to the full pipeline
 
-```bash
-git init
-git add .
-git commit -m "Initialize retail distribution platform scaffold"
-```
-
-Review staged files before committing. This package contains no remote repository configuration and performs no GitHub writes. Cloud configuration comes in milestone M2; do not put credentials in tracked files.
+See the [implemented stack and installation guides](../README.md#explore-or-reproduce). For a fresh local installation, copy .env.example to .env and fill in distinct credentials. Do not overwrite an existing .env.
