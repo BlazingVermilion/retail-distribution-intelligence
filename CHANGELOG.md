@@ -1,8 +1,7 @@
 # Changelog
 
-## 0.1.0 — 2026-10-20
+## Unreleased
 
-- Added project scaffold and English design documentation.
-- Added offline CSV structural inspection, content manifests and synthetic tests.
-- Recorded 2025–2026 source findings and unresolved semantic issues.
-- No Snowflake, dbt, Airflow, Power BI or LLM integration released.
+- Document the validated PostgreSQL publication, the six-task Airflow run, monthly Snowflake parity and the Power BI review.
+- Publish a replayable statewide forecasting benchmark and the evaluated September reporting example.
+- Organize setup and operations by task; distinguish the fixture demonstration from full warehouse execution.

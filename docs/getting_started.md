@@ -1,44 +1,27 @@
 # Getting started
 
-## 1. Open the checkout
+## Inspect the fixture
 
-Clone the repository or extract its source archive. Open the repository root (the directory containing compose.yaml) in your editor.
+Open the cloned repository root (the directory with compose.yaml) in a terminal. With Python 3.11 or 3.12 run:
 
-## 2. Check Python
-
-```bash
-python --version
-```
-
-Python 3.11+ is required. On Windows, use `py -3` instead of `python` if that is how Python is installed.
-
-## 3. Run the offline fixture
-
-```bash
+```sh
 python scripts/inspect_snapshot.py --year 2026 --files data/fixtures/transactions.csv --output artifacts/demo-manifest.json
 python -m unittest discover -s tests -v
 ```
 
-The fixture is synthetic. It deliberately includes a repeated row, leading-zero codes, a negative adjustment, and a missing price. Inspection preserves these records; numeric business rules belong to later quality checks.
+The fixture contains four synthetic records, including a repeated row and a negative adjustment. The inspector validates the 23-column header and primitive values and writes a manifest. It does not remove duplicates, publish a snapshot or certify data completeness.
 
-## 4. Add real exports locally
+## Replay the forecast
 
-Create `data/raw/2025` and `data/raw/2026`. These directories are ignored by Git. Extract ZIPs with your operating system. Keep original CSV bytes; do not open and re-save through Excel. Use explicit filenames, not a wildcard that could include duplicate downloads.
+In a separate Python 3.12 environment:
 
-For 2025 use parts 1–4. Do not include part 5. Rename local copies to consistent names if convenient; renaming does not change their bytes. Put the complete list of selected paths after `--files`.
-
-```bash
-python scripts/inspect_snapshot.py --year 2025 --files data/raw/2025/part_0001.csv data/raw/2025/part_0002.csv data/raw/2025/part_0003.csv data/raw/2025/part_0004.csv --output artifacts/2025-manifest.json
+```sh
+python -m pip install numpy==2.2.6 scipy==1.15.3
+python scripts/backtest_monthly.py
 ```
 
-This command assumes you assigned those four local names. Outputs contain filenames and checksums, not source rows. The inspector will not infer completeness from part numbers or min/max dates.
+The script reads the [81 published monthly observations](evidence/monthly-evidence.json) and scores nine one-month-ahead forecasts. No Snowflake account or raw CSV is needed.
 
-## 5. Interpret the result
+## Full installation
 
-Exit code 0: file structure and present primitive values passed the implemented checks. Missing cells are counted, not automatically rejected. Repeated content files are rejected. A header mismatch, malformed row, invalid date, non-finite number, or out-of-year date returns exit code 2.
-
-This is not a data-quality pass for all KPIs. Read `docs/quality_policy.md` before presenting any business result.
-
-## 6. Continue to the full pipeline
-
-See the [implemented stack and installation guides](../README.md#explore-or-reproduce). For a fresh local installation, copy .env.example to .env and fill in distinct credentials. Do not overwrite an existing .env.
+Keep original exports in data/raw/YYYY, outside Git. For a new installation copy .env.example to .env, choose distinct local credentials and start PostgreSQL with `docker compose up -d postgres`. The full warehouse requires its source load and numbered SQL migrations; a running empty database is not sufficient. See the [operator guide](operations/postgres.md) and [data source](data_sources.md). The dashboard images and brief can be reviewed independently of the warehouse.

@@ -6,4 +6,4 @@
 4. Inspect the [task instances](../images/airflow-run.png) and [run overview](../images/airflow-overview.png). Run manual__2026-11-02T01:28:57.825826+00:00 succeeded for all six tasks. The screenshot does not distinguish RENDERED from REUSED. A separate reporting receipt for manual__2026-11-02T00:36:42.136365+00:00 recorded RENDERED.
 5. Open the [Snowflake query](../images/snowflake-query.png) and [result detail](../images/snowflake-result.png): 81 rows, 81 distinct months. The sync receipt for snapshot bae8dc30-62b6-4d3d-9368-f7d3b57f7163 recorded UNCHANGED and VERIFIED after comparing monthly keys, source counts, dollars and bottles. The screenshot alone proves the counts and range, not value parity.
 
-Local publication evidence: 27 dbt data tests, 26 passing and one nonblocking quality observation returning 81 months. The separately counted hook was successful. The stress/failure-injection suite remains deferred.
+Local publication evidence: 27 dbt data tests, 26 passing and one nonblocking quality observation returning 81 months. The separately counted hook was successful.

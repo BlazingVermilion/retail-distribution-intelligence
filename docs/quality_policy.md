@@ -15,7 +15,7 @@ Corrupt/missing selected files; malformed required fields; unknown schema; unexp
 
 ## Metric-level observations
 
-Missing category/address: use Unknown and warn. Negative amounts: preserve and investigate classification. Identical source rows: retain and flag. Missing price: multiplication check is NOT_EVALUABLE. Source precision changes: gate affected metrics/periods, without fabricating corrected values.
+Missing category/address: use Unknown and warn. Negative amounts: preserve and investigate classification. Identical source rows: preserve raw inputs and audit occurrences; retain one exact row in the analytical export. Missing price: multiplication check is NOT_EVALUABLE. Source precision changes: gate affected metrics/periods, without fabricating corrected values.
 
 ## Diagnostic comparisons
 

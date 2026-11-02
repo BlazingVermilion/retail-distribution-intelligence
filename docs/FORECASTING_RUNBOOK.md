@@ -6,7 +6,7 @@ One command exports a consistent validated monthly PostgreSQL snapshot, reproduc
 
 ## Windows
 
-Extract the overlay beside compose.yaml. Do not install forecasting packages in the dbt or Airflow environment.
+Do not install forecasting packages in the dbt or Airflow environment.
 ```powershell
 py -3.12 -m venv .venv-forecast
 .\.venv-forecast\Scripts\python.exe -m pip install -r requirements-forecast.txt
@@ -34,4 +34,4 @@ If inputs disagree with the previously reviewed benchmark, series.csv and a FAIL
 4. Fixed-origin outlook for Jan–Dec 2026 uses data through Dec 2025 only. Actuals and errors remain empty where unavailable. These rows do not have horizon-specific interval calibration.
 5. For local verification: run `.\.venv-forecast\Scripts\python.exe -m unittest discover -s tests/forecasting -v`. The tests use synthetic warm-up history and the published reference slice. Their simulated candidate performance is not project evidence.
 
-Next: verify real run results; add versioned, deadline-aware issuance and scoring; then connect to validated AI narratives, Airflow and Power BI. The final infrastructure stress/failure drill remains deferred.
+Next: verify real run results; add versioned, deadline-aware issuance and scoring; then connect to validated AI narratives, Airflow and Power BI.

@@ -1,5 +1,7 @@
 # dbt migration validation evidence
 
+> Historical migration evidence. For the current implementation see [run evidence](acceptance/RUN_EVIDENCE.md) and the repository’s GitHub Actions checks.
+
 Prepared 2026-10-23. Scope: supplied overlay, not the user's running machine.
 
 ## Executed successfully

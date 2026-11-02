@@ -1,5 +1,7 @@
 # Publication validation evidence
 
+> Historical migration evidence. For the current implementation see [run evidence](acceptance/RUN_EVIDENCE.md) and the repository’s GitHub Actions checks.
+
 Prepared 2026-10-24. User reported completing the local dbt stage; exact runtime
 logs and timings were not provided in this turn.
 

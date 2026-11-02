@@ -1,5 +1,7 @@
 # Step 10B validation evidence
 
+> Historical migration evidence. For the current implementation see [run evidence](acceptance/RUN_EVIDENCE.md) and the repository’s GitHub Actions checks.
+
 Prepared 2026-10-31.
 
 ## Prior local execution evidence supplied by the user

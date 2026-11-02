@@ -1,6 +1,6 @@
 # Retail Distribution Intelligence: AI architecture and evaluation contract
 
-> Historical design record. The [implemented architecture](architecture.md), [run evidence](acceptance/RUN_EVIDENCE.md) and [forecast evaluation](../README.md#forecast-and-reporting-results) supersede older implementation-status statements below.
+> Historical design record. The [implemented architecture](architecture.md), [run evidence](acceptance/RUN_EVIDENCE.md) and [forecast evaluation](../README.md#forecasting-and-reporting) supersede older implementation-status statements below.
 
 Decision: add an independently evaluated forecasting component to monthly reporting. Design v1, 2026-10-31. This is a new scope decision; the existing 13A brief is a reporting prototype. No trained model result or prospective forecast is claimed.
 
@@ -52,6 +52,6 @@ Total reported actual: 22,026,733. Total forecast: 22,385,748. Net overforecast:
 
 ## Implementation sequence and acceptance
 
-First capture the versioned monthly series, profile dates and recreate the benchmark. Next implement and freeze the historical experiment; retain per-origin results for every candidate. Then issue a timestamped next-month forecast and serve it separately from replayed forecasts. Finally connect validated numbers to the reporting baseline and the LLM; compare results before wiring Airflow and Power BI. Keep the final stress/failure checklist deferred per owner request.
+First capture the versioned monthly series, profile dates and recreate the benchmark. Next implement and freeze the historical experiment; retain per-origin results for every candidate. Then issue a timestamped next-month forecast and serve it separately from replayed forecasts. Finally connect validated numbers to the reporting baseline and the LLM; compare results before wiring Airflow and Power BI.
 
 Method reference: Hyndman & Athanasopoulos, Forecasting: Principles and Practice, time series cross-validation and forecast accuracy, https://otexts.com/fpp3/toolbox.html .
