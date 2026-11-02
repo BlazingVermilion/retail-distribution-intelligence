@@ -1,5 +1,9 @@
 name: Airflow integration checks
-on: [push, pull_request]
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_call:
 permissions:
   contents: read
 jobs:
@@ -15,7 +19,7 @@ jobs:
           import runpy
           dag = runpy.run_path("/test/retail_snapshot_pipeline.py")["dag"]
           assert dag.max_active_runs == 1
-          expected = {"prepare": {"load"}, "load": {"dbt_build"}, "dbt_build": {"publish"}, "publish": {"report"}, "report": set()}
+          expected = {"prepare": {"load"}, "load": {"dbt_build"}, "dbt_build": {"publish"}, "publish": {"report", "sync_snowflake"}, "report": set(), "sync_snowflake": set()}
           assert {t.task_id: t.downstream_task_ids for t in dag.tasks} == expected
           PY
       - name: Verify the run handoff and corrected fixture retry

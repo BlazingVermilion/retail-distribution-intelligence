@@ -1,6 +1,6 @@
 # Step 11: Run the Iowa refresh through Airflow
 
-The DAG runs on demand. Its four tasks use the existing audit, snapshot loader,
+The DAG runs on demand. The first four tasks use the existing audit, snapshot loader,
 dbt wrapper, and publication gate. Airflow owns dependencies, retries, task
 logs and run history. Power BI continues to read marts.bi_sales_monthly; a
 failed build cannot expose partially rebuilt models through that view.
@@ -84,6 +84,8 @@ Open the run's task grid and select each task's logs.
 
 | Task | Successful outcome | Where to look |
 | --- | --- | --- |
+| report | RENDERED or REUSED for the pinned publication | Run-specific reporting receipt |
+| sync_snowflake | Optional: INSERTED or UNCHANGED with verified readback | Run-specific cloud receipt |
 | prepare | PREPARED or REUSED; exact duplicates removed across all years by the existing auditor | Bundle path, row count and per-run receipt |
 | load | COMPLETED when replacement is necessary, SKIPPED when both registered hashes match | Load attempt ID and active input changes |
 | dbt_build | A full build of all nine models and BUILD_VALIDATED | dbt invocation ID, test results and source identity |

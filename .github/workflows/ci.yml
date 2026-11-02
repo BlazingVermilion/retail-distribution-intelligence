@@ -1,5 +1,9 @@
 name: Offline checks
-on: [push, pull_request]
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_call:
 permissions:
   contents: read
 jobs:
@@ -15,3 +19,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m unittest discover -s tests -v
       - run: python scripts/inspect_snapshot.py --year 2026 --files data/fixtures/transactions.csv --output artifacts/demo-manifest.json
+      - name: Reject tracked virtual environments
+        run: |
+          if git ls-files | grep -E '(^|/)\.venv[^/]*/' > /dev/null; then
+            echo "::error::Remove the tracked virtual environment from the index."
+            exit 1
+          fi
+      - name: Replay the published statistical benchmark
+        run: |
+          pip install -r requirements-forecast.txt
+          python -m unittest discover -s tests/forecasting -v
+          python scripts/backtest_monthly.py
