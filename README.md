@@ -2,6 +2,12 @@
 
 Retail Distribution Intelligence turns Iowa liquor distribution records into a monthly sales dashboard, a statewide bottle forecast and a brief whose figures can be traced back to the published data. It is designed for an analyst preparing a monthly review: **how much did retailers purchase, how did that change from last year, and which figures need a closer look?** The records describe purchases by licensed retailers, not individual consumer sales.
 
+## Dashboard demo
+
+![Iowa distribution sales, purchasing stores and year-over-year comparison for September 2026](docs/images/sales-overview.png)
+
+Start with the [September brief](docs/evidence/brief.md) to compare the observed sales with the October bottle forecast. The brief also flags that period completeness has not been verified.
+
 ## What the project delivers
 
 | Output | What it tells the analyst | Observed result |
@@ -18,7 +24,17 @@ In January 2026, all **182,995** records had the inputs needed to check reported
 
 [See the sales and growth dashboards, Airflow run and Snowflake verification →](docs/acceptance/RUN_EVIDENCE.md)
 
-## How it works
+## Architecture and workflow
+
+```mermaid
+flowchart TD
+    A["Iowa CSV snapshots"] --> B["Exact-row audit and PostgreSQL staging"]
+    B --> C["dbt models and reconciliation tests"]
+    C --> D["Validated publication"]
+    D --> E["Power BI monthly views"]
+    D --> F["Bottle outlook and checked monthly brief"]
+    D --> G["Optional Snowflake KPI mirror"]
+```
 
 1. **Prepare and load.** Python discovers CSVs across year folders and audits exact duplicates across files. Different rows sharing an invoice ID are retained. PostgreSQL stores the deduplicated dataset.
 2. **Model and publish.** Nine dbt models type the fields, reconcile quantities and amounts, and build facts, dimensions and monthly KPIs. Publication validates the candidate before switching the snapshot read by Power BI.
